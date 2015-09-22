@@ -1,0 +1,15 @@
+Context switch is the process of storing and restoring the state of a process or thread so that execution can be resumed from the same point at a later time. This enables multiple processes to share a single CPU and is essential feature of a multitasking operating system.
+
+Idea:
+1. Experiment the same tasks with context switch and without context switch, and measure the difference.
+
+2. Record the timestamp of the last and first instruction of the swapping processes. The context switch time is the difference in the timestamp between the two processes.
+
+
+T(x, k) the timestamp in microseconds of the Kth instruction of process x. 
+Suppose the swapping happens at the nth instruction of process 1.
+T(2, 1) - T(1, n)
+
+Tricky part is how do we know when this swapping occurs? We cannot, of course, record the timestamp of every instruction. 
+
+Another issue is that the swapping is governed by the scheduling algorithm of the operating system, and there may be many kernel level threads which are also doing context switch at the same time. Other process could be contending for the CPU or the kernel handling interrupts. The user does not have any control of those extranous context switches. For example, at time T(1, n), if the kernel decides to handle an interrupt, then the context time would be overstated.
