@@ -1,0 +1,20 @@
+// What's the difference between Threads and Processes?
+
+1. Each process could have multiple threads.
+
+2. Each process has its own computation environment (heaps).
+
+3. If there is no "hyperthreading", the maximum concurrency - numbre of threads running at the same time, is equals to the number of cores.
+
+4. Each thread has its own stack, and could share heap with other threads within the same process.
+
+
+Process:
+
+A process can be thought of as an instance of program in execution. A process is an independent entity to which system resource (CPU time, memory) is allocated. Each process is executed in a separate address space and could not access the variables and data structures of another process. If a process wishes to access another process' resources, inter-process communications have to be used. These include pipes, files, sockets and other forms.
+
+Thread:
+
+A thread exists within a process and shares the process' resource (including its heap space). Multiple threads within the same process would share the same heap space. This is very different from processes, which can not directly access the memory of another process. Each thread still has its own registers and stacks, but other threads can read and write the heap memory.
+
+A thread is a particular execution path of a process. When one thread modify a process' resource, the change is immediately visible to sibling threads.
