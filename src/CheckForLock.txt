@@ -1,0 +1,171 @@
+// Design a class which provides a lock only if there are no possible deadlocks.
+
+// banker algorighm?
+
+// Cycle detection:
+Locks required from three threads:
+A = {2, 3, 5}
+
+B = {3, 7, 10}
+
+C = {10, 2}
+
+2 -> 3 -> 10 -> 2 Lock would happen, design an algorithm that detect cycle in a graph?
+
+For simplicity, assume all locks and processes are ordered sequentially.
+
+public class LockFactory{
+	priavate LockFactory instance;
+	private LockNode[] locks;
+	private int numberOfLocks = 5;
+	private HashMap<Integer, LinkedList<LockNode>> lockOrder;
+	public static synchronized init(int count){
+		if(instance == null){
+			instance = new LockFactory(count);
+		}
+		return instance;
+	}
+
+	public LockFactory(int count){
+		numberOfLocks = count;
+		locks = new LockNode[numberOfLocks];
+		lockOrder = new HashMap<Integer, LinkedList<LockNode>>();
+		for(int i = 0; i < numberOfLocks; i++){
+			locks[i] = new LockNode(i, numberOfLocks);
+		}
+	}
+
+	public static LockFactory getInstance(){
+		return instance;
+	}
+
+	public boolean hasCycle(HashMap<Integer, Boolean> touchedNodes, int[] resourcesInOrder){
+		// check for a cycle
+		for(int resource : resourcesInOrder){
+			if(!touchedNodes.get(resource)){
+				LockNode n = locks[resource];
+				if(n.hasCycle(touchedNodes)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public boolean declare(int ownerId, int[] reourceInOrder){
+		HashMap<Integer, Boolean> touchedNodes = new HashMap<Integer, Boolean>();
+		
+		// add nodes to graph
+		int index = 1;
+		touchNodes.put(resourceInOrder[0], false);
+		for(index = 1; index < resourcesInOrder.length; i++){
+			LockNode prev = locks[resourcesInOrder[index-1]];
+			LockNode cur = locks[resourcesInOrder[index]];
+			prev.joinTo(cur);
+			touchedNodes.put(resourceInOrder[index], false);
+		}
+		
+		// If we created a cycle, destroy the resource list and return false
+
+		if(hasCycle(touchedNodes, resourcesInOrder)){
+			for(int j = 1; j < resourcesInOrder.length; j++){
+				LockNode prev = locks[resourcesInOrder[j-1]];
+				LockNode cur = locks[resourcesInOrder[j]];
+				prev.remove(cur);
+			}
+			return false;
+		}
+
+		// if no cycle detected, save the order that was declared, and verify later
+
+		LinkedList<LockNode> list = new LinkedList<LockNode>();
+		for(int i = 0; i < resourcesInOrder.length; i++){
+			LockNode resource = locks[resourcesInOrder[i]];
+			list.add(resource);
+		}
+		lockOrder.put(ownerId, list);
+		return true;
+	}
+
+	public Lock getLock(int ownerId, int resoureId){
+		LinkedList<LockNode> list = lockOrder.get(ownerId);
+		if(list == null){
+			return null;
+		}
+
+		LockNode head = list.getFirst();
+		if(head.getId() == resourceId){
+			list.removeFirst();
+			return head.getLock();
+		}
+		return null;
+	}
+}
+
+public class LockNode{
+	public enum VisitState{FRESH, VISITING, VISITED};
+	private ArrayList<LockNode> children;
+	private int lockId;
+	private Lock lock;
+	private in maxLocks;
+	
+	public LockNode(int id, int max){
+		this.lockId = id;
+		this.maxLocks = max;
+	}
+
+	public void jointTo(LockNode node){
+		children.add(node);
+	}
+
+	public void remove(LockNode node){
+		children.remove(node);
+	}
+
+	public int getId(){
+		return lockId;
+	}
+
+	public Lock getLock(){
+		if(lock == null){
+			lock = new ReetrantLock();
+		}
+		return lock;
+	}
+
+	public boolean hasCycle(HashMap<Integer, Boolean> touchedNodes){
+		VisitState[] visited = new VisitState[maxLocks];
+		for(int i = 0; i < maxLocks; i++){
+			visited[i] = VisitState.FRESH;
+		}
+
+		return hasCycle(visited, touchedNodes);
+	}
+
+	public boolean hasCycle(VisitState[] visited, HashMap<Integer, Boolean> touchedNodes){
+		if(touchedNodes.containsKey(lockId)){
+			touchedNodes.put(lockId, true);
+		}
+
+		if(visited[lockId] = VisitState.VISITING){
+			return true;
+		}else if(visited[lockId] = VisitState.FRESH){
+			visited[lockId] = VisitState.VISITING;
+			for(LockNode n : children){
+				if(n.hasCycle(visited, touchedNodes)){
+					return true;
+				}
+			}
+			visited[lockId] = VisitState.VISITED;
+		}
+		return false;
+	}
+}
+
+
+
+
+
+
+
+
