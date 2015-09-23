@@ -1,0 +1,92 @@
+// A bunch of philosophers are sitting around a circular table with one chopstick between each of them.
+// A philosopher needs two chopsticks to eat and alwasy picks up the left chopstick before the right one.
+// A deadlock could happen if all the philosophers reach to the left chopstick at the same time.
+// Using threads and locks, implementing a simualation of dinning philosophers problem that prevents deadlock.
+
+// draft:
+public class Philosopher{
+	void pickLeft();
+	void pickRight();
+	boolean isLeftAvailable();
+	boolean isRightAvailable();
+
+	boolean pick(){
+		if(isLeftAailable() && isRightAvailable()){
+			// lock right and left chopstick
+
+			pickLeft();
+			pickRight();
+			return true;
+		}
+		return false;
+	}
+
+	void eat(){
+		// eat
+		// realease locks
+	}
+}
+
+########################
+public class Chopstick{
+	private Lock lock;
+	public Chopstick(){
+		lock = new ReentrantLock();
+	}
+	public boolean pickUp(){
+		return lock.tryLock();
+	}
+	public void putDown(){
+		lock.unlock;
+	}
+}
+
+public class Philosopher{
+	private int bites;
+	private Chopstick left;
+	private Chopstick right;
+	public Philosopher(Chopstick left, Chopstick right, bites){
+		this.left  = left;
+		this.right = right;
+		this.bites = bites;
+	}
+
+	public void eat(){
+		if(pickUp()){
+			chew();
+			putDown();
+		}
+	}
+
+	public boolean pickUp(){
+		if(left.pickUp()){
+			if(!right.pickUp()){
+				left.putDown();
+				return false;
+			}else{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void putDown(){
+		left.putDown();
+		right.putDown();
+	}
+
+	public void run(){
+		for(int i = 0; i < bites; i++){
+			eat();
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
