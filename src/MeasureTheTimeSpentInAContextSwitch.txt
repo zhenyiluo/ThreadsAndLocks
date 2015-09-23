@@ -13,3 +13,28 @@ T(2, 1) - T(1, n)
 Tricky part is how do we know when this swapping occurs? We cannot, of course, record the timestamp of every instruction. 
 
 Another issue is that the swapping is governed by the scheduling algorithm of the operating system, and there may be many kernel level threads which are also doing context switch at the same time. Other process could be contending for the CPU or the kernel handling interrupts. The user does not have any control of those extranous context switches. For example, at time T(1, n), if the kernel decides to handle an interrupt, then the context time would be overstated.
+
+Scenario: 
+Constructing a data channel, such as a pipe, between P1 and p2 and having the two processes play a game of ping-pong with a data token.
+(Assume P2 would be scheduled to run immediately once the data is ready)
+P2 blocks awaiting data from P1
+P1 marks the start time and sends the token
+P1 attempts to read a response from P2. This includes a context switch.
+P2 is scheculed to run and receives the token.
+P2 sends a response token to P1.
+P2 attempts to read a response from P1. This includes a context switch.
+P1 is scheduled to run and receives the token.
+P1 marks the end time.
+For each cycle: 
+P1 -> (send data) ->  P2
+
+P2 -> (receive data) 
+
+P2 -> (send data) -> P1
+
+P1 -> (receive data)
+
+T = 2 * (Tc + Tx)
+
+Calculate Tx: let P1 sends and receives a token to itself, this won't include the context switch time.
+The game is played a number of times to average out the variability in the elapsed time between step 2 and step 9 that may results from unexpected kernel interrupts and additional kernel threads that contending for the CPU. We select the smallest observed context switch time as the final answer.
